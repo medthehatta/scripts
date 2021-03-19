@@ -1,0 +1,2 @@
+#!/bin/bash
+jq -c --stream 'select(length > 1)'

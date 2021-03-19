@@ -1,0 +1,37 @@
+#!/bin/bash
+
+tmp="$(mktemp -d)"
+trap "rm -rf $tmp" EXIT
+
+filename="$(readlink -f -- "$1")"
+
+cd "$tmp"
+grep -oP '(?<=\$)[A-Za-z_]+' "$filename" | sort | uniq > varnames
+
+cat <<EOF
+while [ "\$#" -gt 0 ]; do
+    case "\$1" in
+        -h|--help)
+            sed -n '/^while/,/^done/p' "\$0" | grep -oP '\S+(?=\)$)'
+            exit 0
+            ;;
+EOF
+
+for varname in $(cat varnames); do
+    formatted="$(sed -e 's/_/-/g' <<< "$varname" | tr '[:upper:]' '[:lower:]')"
+    cat <<EOF
+        --$formatted)
+            $varname="\$2"
+            shift 2
+            ;;
+EOF
+done
+
+cat <<EOF
+        *)
+            break
+            ;;
+    esac
+done
+
+EOF

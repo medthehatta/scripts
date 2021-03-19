@@ -1,0 +1,23 @@
+#!/bin/bash -e
+
+branches=(master develop main)
+
+
+for branch in "${branches[@]}" "__NONE__"; do
+    main_branch="$branch"
+    (git branch -a 2>/dev/null | grep "origin/$main_branch" 2>/dev/null) && break
+done
+
+
+[ "$main_branch" == "__NONE__" ] && {
+    echo "Could not find any of '${branches[@]}'.  Aborting." >&2
+    exit 1
+}
+
+
+git stash
+git checkout "$main_branch"
+git fetch origin "$main_branch"
+git reset --hard FETCH_HEAD
+git checkout -
+git stash pop

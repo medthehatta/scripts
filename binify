@@ -1,0 +1,23 @@
+#!/bin/bash
+
+
+file="$1"
+bindir="$HOME/bin"
+
+
+mkdir -p "$bindir"
+
+
+chmod +x "$file"
+ln -sf "$(readlink -f "$file")" "$bindir/"
+
+
+if ! (grep -P "$bindir" <<< "$PATH" &>/dev/null); then
+    cat <<EOF >&2
+The misc script dir "$bindir" is not in your PATH!
+
+Add this to your bashrc or bash_profile to access these scripts:
+
+    export PATH="$bindir:\$PATH"
+EOF
+fi
