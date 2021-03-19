@@ -1,0 +1,3 @@
+#!/bin/bash
+prefix="$(dirname -- "$(readlink -f -- "$0")")"
+"$prefix/latest-img" | xargs -n1 dragon -x

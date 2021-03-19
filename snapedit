@@ -1,0 +1,5 @@
+#!/bin/bash
+
+
+cp "$SCREENSHOTS/hc.png" "$SCREENSHOTS/hc1.png"
+pinta "$SCREENSHOTS/hc1.png" &

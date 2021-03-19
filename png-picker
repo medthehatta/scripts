@@ -1,0 +1,11 @@
+#!/bin/bash
+prefix="$(dirname -- "$(readlink -f -- "$0")")"
+
+filter="${1:-".*.png"}"
+
+tmp="$(mktemp -d)"
+trap "rm -rf '$tmp'" EXIT
+
+find "${SCREENSHOTS:-/tmp}" -maxdepth 1 -type f | grep -iP "$filter" | sort -r > "$tmp/listing"
+
+xargs -a "$tmp/listing" sxiv -to

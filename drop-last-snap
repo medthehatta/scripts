@@ -1,0 +1,3 @@
+#!/bin/bash
+
+dragon -x $(find "${SCREENSHOTS:-/tmp}" -maxdepth 1 -name 'hc_????-*png' 2>/dev/null | sort -nr | head -n1)
