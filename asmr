@@ -1,0 +1,13 @@
+#!/bin/bash
+
+
+temp="$(mktemp -d)"
+trap "rm -rf $temp" EXIT
+
+
+vim "$temp/asmr"
+[ -s "$temp/asmr" ] || { echo "No entries, aborting."; exit 1; }
+
+
+scp "$temp/asmr" med@mancer.in:/var/www/files/xfer/asmr
+ssh med@mancer.in bash -x /home/med/download-asmr
