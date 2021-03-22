@@ -1,0 +1,47 @@
+#!/bin/bash
+t="$(mktemp -d)"
+trap "rm -rf $t" EXIT
+#trap "echo $t" EXIT
+
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        -h|--help)
+            sed -n '/^while/,/^done/p' "$0" | grep -oP '\S+(?=\)$)'
+            exit 0
+            ;;
+        -1|--first-of-multi)
+            first_of_multi=1
+            shift 1
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+
+
+type="$1"; shift
+pattern="$1"; shift
+[ -n "$type" ] && [ -n "$pattern" ] || { echo "Need both type and pattern.  Aborting." >&2; exit 1; }
+
+kubectl get --no-headers "$type" -A | grep "$pattern" | awk '{print $1,$2}' > "$t/options"
+
+num="$(wc -l < "$t/options")"
+
+if [ "$num" -eq 0 ]; then
+    echo "No matches for '$type' with pattern: $pattern" >&2
+
+elif [ "$num" -eq 1 ]; then
+    kubectl get "$type" -n $(head -n1 "$t/options") "$@"
+
+else
+    if [ -n "$first_of_multi" ]; then
+        echo "WARN: Found $num matches, but taking first one as requested." >&2
+        kubectl get "$type" -n $(head -n1 "$t/options") "$@"
+    else
+        echo "Found $num matches:" >&2
+        paste <(echo) <(cat "$t/options") >&2
+        echo "Aborting." >&2
+        exit 1
+    fi
+fi
