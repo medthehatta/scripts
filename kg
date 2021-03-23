@@ -20,9 +20,25 @@ while [ "$#" -gt 0 ]; do
 done
 
 
+_get_or_ns () {
+    if [ "$type" == "namespace" ]; then
+        head -n1 "$t/options" | awk '{print $1}'
+    else
+        kubectl get "$type" -n $(head -n1 "$t/options") "$@"
+    fi
+}
+
+
 type="$1"; shift
 pattern="$1"; shift
 [ -n "$type" ] && [ -n "$pattern" ] || { echo "Need both type and pattern.  Aborting." >&2; exit 1; }
+
+case "$type" in
+    n|ns|namespace|namespaces)
+        # This allows us to accept 'n' for the type name
+        type="namespace"
+        ;;
+esac
 
 kubectl get --no-headers "$type" -A | grep "$pattern" | awk '{print $1,$2}' > "$t/options"
 
@@ -32,12 +48,12 @@ if [ "$num" -eq 0 ]; then
     echo "No matches for '$type' with pattern: $pattern" >&2
 
 elif [ "$num" -eq 1 ]; then
-    kubectl get "$type" -n $(head -n1 "$t/options") "$@"
+    _get_or_ns "$@"
 
 else
     if [ -n "$first_of_multi" ]; then
         echo "WARN: Found $num matches, but taking first one as requested." >&2
-        kubectl get "$type" -n $(head -n1 "$t/options") "$@"
+        _get_or_ns "$@"
     else
         echo "Found $num matches:" >&2
         paste <(echo) <(cat "$t/options") >&2
