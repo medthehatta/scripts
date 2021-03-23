@@ -1,5 +1,5 @@
 #!/bin/bash
-outdir="${SCREENSHOTS:/tmp}"
+outdir="${SCREENSHOTS:-/tmp}"
 name="$outdir/hc_$(date -Is | tr : -).png"
 maim -s "$name" "$@"
 [ -s "$outdir/hc_prev.png" ] && cp "$outdir/hc_prev.png" "$outdir/hc_prev2.png"
