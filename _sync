@@ -1,0 +1,68 @@
+#!/bin/bash
+prefix="$(dirname -- "$(readlink -f -- "$0")")"
+
+
+_ensure_link () {
+    local target="$(readlink -f "$1")"
+    local name="$(basename "$target")"
+    if [ -e "$target" ]; then
+        echo -n "$target... " >&2
+        if [ -L "$deploy/$name" ]; then
+            echo "PRESENT"
+        else
+            echo "LINKING"
+            ln -sf "$target" "$deploy/"
+        fi
+    fi
+}
+
+
+_add_links () {
+    local path="$1"
+    for dir in $(find "$path" -maxdepth 1 -mindepth 1 -type d); do
+        _ensure_link "$dir"
+    done
+}
+
+
+deploy="$HOME/deploy"
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        -h|--help)
+            sed -n '/^while/,/^done/p' "$0" | grep -oP '\S+(?=\)$)'
+            exit 0
+            ;;
+        --deploy)
+            deploy="$2"
+            shift 2
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+
+
+linked="$deploy/.linked"
+
+
+# Sync any dirs that we have synced before
+if [ -e "$linked" ]; then
+    grep -vP '^\s*$' "$linked" | \
+        while read linkdir; do
+            _add_links "$linkdir"
+        done
+fi
+
+
+# Sync any additional dirs and track them
+for linkdir in "$@"; do
+    ldir="$(readlink -f "$linkdir")"
+    _add_links "$ldir"
+    echo "$ldir" >> "$linked"
+done
+
+
+# Uniquify link entries
+sort "$linked" | uniq > "$linked.$$"
+mv "$linked.$$" "$linked"
