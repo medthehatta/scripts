@@ -1,3 +1,34 @@
 #!/bin/bash
 terminal="/usr/bin/sakura"
-"$terminal" -e "vim $1"
+
+
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        -h|--help)
+            sed -n '/^while/,/^done/p' "$0" | grep -oP '\S+(?=\)$)'
+            exit 0
+            ;;
+        --terminal)
+            terminal="$2"
+            shift 2
+            ;;
+        --server)
+            server="$2"
+            shift 2
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+
+
+if [ -n "$server" ]; then
+    if (vim --serverlist | grep -i "$server"); then
+        vim --servername "$server" --remote "$@"
+    else
+        "$terminal" -e vim "--servername $server $@" &
+    fi
+else
+    "$terminal" -e vim "$@"
+fi
