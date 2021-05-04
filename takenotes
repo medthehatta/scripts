@@ -1,0 +1,4 @@
+#!/bin/bash
+notedir="$HOME/notes"
+today="$(date -I)"
+termvim --server takenotes "$notedir/$today"
