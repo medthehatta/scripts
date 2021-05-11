@@ -3,5 +3,5 @@
 deploy="$HOME/deploy"
 
 for dir in $(find "$deploy" -maxdepth 1 -mindepth 1 -type l); do
-    (cd "$dir" && git diff --quiet || { echo "$(basename $dir)" && git diff --stat; })
+    (cd "$dir" && [ -d ".git" ] && { git diff --quiet || { echo "$(basename $dir)" && git diff --stat; } ; })
 done
