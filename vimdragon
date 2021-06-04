@@ -3,4 +3,5 @@
 TMP=$(mktemp -t "XXX")
 
 xclip -o > $TMP
+head "$TMP"
 dragon -x "$TMP"
