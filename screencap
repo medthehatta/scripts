@@ -1,0 +1,23 @@
+#!/bin/bash
+tempfile="$(mktemp -u --suffix=.mp4 screencap.XXX)"
+geometry="$(slop)"
+position="$(grep -oP '(?<=\+).*' <<< "$geometry" | sed -e 's/+/,/g' -e 's/^,/+/')"
+size="$(grep -oP '^.*?(?=\+)' <<< "$geometry")"
+ffmpeg -f x11grab -i ":0.0+$position" -video_size "$size" -framerate 25 "$tempfile"
+
+echo "$tempfile" >&2
+
+while true; do
+    read -p "([d]ragon [k]eep [r]emove):  " next
+    if [[ "$next" =~ [Dd] ]]; then
+        dragon -x "$tempfile"
+    elif [[ "$next" =~ [Kk] ]]; then
+        echo "$tempfile"
+        exit 0
+    elif [[ "$next" == [Rr] ]]; then
+        rm "$tempfile"
+        exit 0
+    else
+        echo "You must select an option" >&2
+    fi
+done
