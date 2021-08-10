@@ -1,2 +1,2 @@
 #!/bin/bash
-x11vnc -ncache 10 -clip $(slop)
+x11vnc -multiptr -ncache 10 -clip $(slop)
