@@ -1,3 +1,4 @@
 #!/bin/bash
 path="$(mktemp -d)"
 cd "$path"
+pwd
