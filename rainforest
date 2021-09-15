@@ -1,0 +1,2 @@
+#!/bin/bash
+docker run --rm gcr.io/rf-public-images/rainforest-cli:latest
