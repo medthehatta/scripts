@@ -1,0 +1,3 @@
+#!/bin/bash
+kubectl get daemonset,deploy,statefulset -A -o json | \
+jq -c '.items[] | {name: .metadata.name, containers: .spec.template.spec.containers | map({"\(.name)": .image})}'
