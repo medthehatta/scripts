@@ -1,2 +1,3 @@
 #!/bin/bash
-docker run --rm gcr.io/rf-public-images/rainforest-cli:latest
+rainforest_base_dir="$HOME/deploy/rainforest"
+docker run --rm -e RAINFOREST_API_TOKEN="$RAINFOREST_API_TOKEN" -v "$rainforest_base_dir/tests:/tests" gcr.io/rf-public-images/rainforest-cli:latest "$@"
